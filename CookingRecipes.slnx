@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/Data/">
+    <Project Path="CookingRecipes.Data.Models/CookingRecipes.Data.Models.csproj" />
+    <Project Path="CookingRecipes.Data/CookingRecipes.Data.csproj" />
+  </Folder>
+  <Project Path="CookingRecipes.Web/CookingRecipes.Web.csproj" />
+</Solution>
