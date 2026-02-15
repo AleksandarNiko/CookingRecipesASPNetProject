@@ -1,35 +1,27 @@
 ﻿@model IEnumerable<CookingRecipes.Data.Models.Category>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Категории";
 }
 
-<h1>Index</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3">Категории</h1>
+    <a asp-action="Create" class="btn btn-primary">Добави категория</a>
+</div>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.CategoryID">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.CategoryID">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.CategoryID">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">@item.Name</h5>
+                    <div class="mt-auto">
+                        <a asp-action="Details" asp-route-id="@item.CategoryID" class="btn btn-outline-primary btn-sm">Детайли</a>
+                        <a asp-action="Edit" asp-route-id="@item.CategoryID" class="btn btn-outline-secondary btn-sm ms-2">Редактирай</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

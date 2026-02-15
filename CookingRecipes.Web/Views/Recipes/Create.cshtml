@@ -1,60 +1,62 @@
 ﻿@model CookingRecipes.Data.Models.Recipe
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Добави рецепта";
 }
 
-<h1>Create</h1>
+<div class="card mx-auto" style="max-width:900px;">
+    <div class="card-body">
+        <h4 class="card-title mb-3">Добавяне на нова рецепта</h4>
 
-<h4>Recipe</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
                 <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="4"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="PreparationTime" class="control-label"></label>
-                <input asp-for="PreparationTime" class="form-control" />
-                <span asp-validation-for="PreparationTime" class="text-danger"></span>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="PreparationTime" class="form-label"></label>
+                    <input asp-for="PreparationTime" class="form-control" />
+                    <span asp-validation-for="PreparationTime" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="CookingTime" class="form-label"></label>
+                    <input asp-for="CookingTime" class="form-control" />
+                    <span asp-validation-for="CookingTime" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="Servings" class="form-label"></label>
+                    <input asp-for="Servings" class="form-control" />
+                    <span asp-validation-for="Servings" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="CookingTime" class="control-label"></label>
-                <input asp-for="CookingTime" class="form-control" />
-                <span asp-validation-for="CookingTime" class="text-danger"></span>
+
+            <div class="mb-3">
+                <label>Категории</label>
+                <select name="SelectedCategoryIds" multiple class="form-control">
+                    @foreach (var category in ViewBag.Categories as IEnumerable<CookingRecipes.Data.Models.Category>)
+                    {
+                        <option value="@category.CategoryID">@category.Name</option>
+                    }
+                </select>
             </div>
-            <div class="form-group">
-                <label asp-for="Servings" class="control-label"></label>
-                <input asp-for="Servings" class="form-control" />
-                <span asp-validation-for="Servings" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedBy" class="control-label"></label>
-                <select asp-for="CreatedBy" class ="form-control" asp-items="ViewBag.CreatedBy"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary">Отказ</a>
+                <button type="submit" class="btn btn-primary">Запази рецепта</button>
             </div>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {
