@@ -1,171 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using CookingRecipes.Data;
+﻿using Microsoft.AspNetCore.Mvc;
+using CookingRecipes.Services.Interfaces;
 using CookingRecipes.Data.Models;
 
 namespace CookingRecipes.Web.Controllers
 {
-    public class CategoriesController : Controller
+    public class CategoryController : Controller
     {
-        private readonly CookingRecipesDbContext _context;
+        private readonly ICategoryService categoryService;
 
-        public CategoriesController(CookingRecipesDbContext context)
+        public CategoryController(ICategoryService categoryService)
         {
-            _context = context;
+            this.categoryService = categoryService;
         }
 
-        // GET: Categories
+        // GET: Category
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categories.ToListAsync());
+            var categories = await categoryService.GetAllAsync();
+
+            return View(categories);
         }
 
-        // GET: Categories/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryID == id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-
-            return View(category);
-        }
-
-        // GET: Categories/Create
+        // GET: Category/Create
         public IActionResult Create()
         {
-            ViewData["Categories"] = _context.Categories.ToList();
             return View();
         }
 
-        // POST: Categories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // POST: Category/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Recipe recipe, int[] SelectedCategoryIds)
+        public async Task<IActionResult> Create(Category category)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(recipe);
-                await _context.SaveChangesAsync();
+            if (!ModelState.IsValid)
+                return View(category);
 
-                foreach (var categoryId in SelectedCategoryIds)
-                {
-                    _context.RecipeCategories.Add(new RecipeCategory
-                    {
-                        RecipeID = recipe.RecipeID,
-                        CategoryID = categoryId
-                    });
-                }
+            await categoryService.CreateAsync(category);
 
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-
-            ViewBag.Categories = _context.Categories.ToList();
-            return View(recipe);
-        }
-
-        // GET: Categories/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var category = await _context.Categories.FindAsync(id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-            return View(category);
-        }
-
-        // POST: Categories/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CategoryID,Name")] Category category)
-        {
-            if (id != category.CategoryID)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(category);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CategoryExists(category.CategoryID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(category);
-        }
-
-        // GET: Categories/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var category = await _context.Categories
-                .FirstOrDefaultAsync(m => m.CategoryID == id);
-            if (category == null)
-            {
-                return NotFound();
-            }
-
-            return View(category);
-        }
-
-        // POST: Categories/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var category = await _context.Categories.FindAsync(id);
-            if (category != null)
-            {
-                _context.Categories.Remove(category);
-            }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool CategoryExists(int id)
-        {
-            return _context.Categories.Any(e => e.CategoryID == id);
         }
     }
 }

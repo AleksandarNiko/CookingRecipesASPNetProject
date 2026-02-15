@@ -1,0 +1,30 @@
+﻿
+@using CookingRecipes.Web.Models
+@model ErrorViewModel
+
+@{
+    ViewData["Title"] = "Грешка";
+}
+
+<div class="container mt-5 text-center">
+
+    <i class="bi bi-exclamation-octagon-fill text-danger" style="font-size: 5rem;"></i>
+
+    <h1 class="text-danger mt-3">Грешка</h1>
+
+    <p class="lead">
+        Възникна проблем при изпълнение на заявката.
+    </p>
+
+    @if (Model?.RequestId != null)
+    {
+        <p>
+            <strong>Request ID:</strong> <code>@Model.RequestId</code>
+        </p>
+    }
+
+    <a asp-controller="Home" asp-action="Index" class="btn btn-primary mt-3">
+        Към началната страница
+    </a>
+
+</div>
