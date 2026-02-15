@@ -22,8 +22,8 @@ builder.Services.AddControllersWithViews();
 
 
 
-builder.Services.AddScoped<IRecipeService, RecipeService>();
-builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IRecipeService, RecipesService>();
+builder.Services.AddScoped<ICategoryService, CategoriesService>();
 
 var app = builder.Build();
 

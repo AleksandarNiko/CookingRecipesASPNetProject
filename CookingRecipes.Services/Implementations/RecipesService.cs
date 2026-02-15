@@ -8,11 +8,11 @@ using System.Text;
 
 namespace CookingRecipes.Services.Implementations
 {
-    public class RecipeService : IRecipeService
+    public class RecipesService : IRecipeService
     {
         private readonly CookingRecipesDbContext context;
 
-        public RecipeService(CookingRecipesDbContext context)
+        public RecipesService(CookingRecipesDbContext context)
         {
             this.context = context;
         }

@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace CookingRecipes.Services.Implementations
 {
-    public class CategoryService : ICategoryService
+    public class CategoriesService : ICategoryService
     {
         private readonly CookingRecipesDbContext context;
 
-        public CategoryService(CookingRecipesDbContext context)
+        public CategoriesService(CookingRecipesDbContext context)
         {
             this.context = context;
         }
