@@ -42,8 +42,9 @@
             </div>
 
             <div class="mb-3">
-                <label>Категории</label>
-                <select name="SelectedCategoryIds" multiple class="form-control">
+                <label for="SelectedCategoryId" class="form-label">Категория</label>
+                <select id="SelectedCategoryId" name="SelectedCategoryId" class="form-select">
+                    <option value="">-- Изберете категория --</option>
                     @foreach (var category in ViewBag.Categories as IEnumerable<CookingRecipes.Data.Models.Category>)
                     {
                         <option value="@category.CategoryID">@category.Name</option>

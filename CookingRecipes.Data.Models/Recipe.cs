@@ -29,7 +29,7 @@ namespace CookingRecipes.Data.Models
 
         public  DateTime CreatedAt { get; set; }
 
-        public  User User { get; set; }
+        public  User? User { get; set; }
 
         public IEnumerable<RecipeIngredient> RecipeIngredients { get; set; } = new List<RecipeIngredient>();
 
