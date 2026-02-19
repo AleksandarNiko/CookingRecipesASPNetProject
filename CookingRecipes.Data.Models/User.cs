@@ -33,5 +33,9 @@ namespace CookingRecipes.Data.Models
         public IEnumerable<Recipe> Recipes { get; set; } = new List<Recipe>();
 
         public IEnumerable<Comment> Comments { get; set; } = new List<Comment>();
+
+        // Optional link to Identity user
+        [MaxLength(450)]
+        public string? IdentityUserId { get; set; }
     }
 }

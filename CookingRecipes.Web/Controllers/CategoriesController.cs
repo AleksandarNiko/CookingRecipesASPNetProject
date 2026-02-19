@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CookingRecipes.Web.Controllers
 {
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Administrator")]
     public class CategoriesController : Controller
     {
         private readonly ICategoryService categoryService;

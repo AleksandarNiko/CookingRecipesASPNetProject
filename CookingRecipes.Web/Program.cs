@@ -2,6 +2,7 @@ using CookingRecipes.Data;
 using CookingRecipes.Services.Implementations;
 using CookingRecipes.Services.Interfaces;
 using CookingRecipes.Web;
+using CookingRecipes.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
@@ -16,8 +17,23 @@ builder.Services.AddDbContext<CookingRecipesDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+// Identity stores in a separate Identity DbContext to isolate identity schema
+builder.Services.AddDbContext<ApplicationIdentityDbContext>(options =>
+    options.UseSqlServer(connectionString));
+
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<CookingRecipesDbContext>();
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationIdentityDbContext>()
+    .AddDefaultUI();
+
+// Razor Pages (Identity UI)
+builder.Services.AddRazorPages();
+
+// Authorization policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireAdmin", policy => policy.RequireRole("Administrator"));
+});
 builder.Services.AddControllersWithViews();
 
 
@@ -25,7 +41,47 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IRecipeService, RecipesService>();
 builder.Services.AddScoped<ICategoryService, CategoriesService>();
 
+// Seed roles/admin on startup
+// Make RoleInitializer available after Identity services
+builder.Services.AddScoped<RoleInitializer>();
+
 var app = builder.Build();
+
+// Ensure databases exist (development convenience) and initialize roles/admin user
+using (var scope = app.Services.CreateScope())
+{
+    var identityDb = scope.ServiceProvider.GetRequiredService<ApplicationIdentityDbContext>();
+    var appDb = scope.ServiceProvider.GetRequiredService<CookingRecipesDbContext>();
+
+    // Apply any pending migrations. This ensures Identity tables (e.g. AspNetRoles) are created.
+    // In production use explicit migrations and avoid EnsureCreated.
+    // Apply migrations for the Identity DbContext so Identity tables are created.
+    // If there are no migrations or migration application fails, fall back to EnsureCreated.
+    try
+    {
+        identityDb.Database.Migrate();
+    }
+    catch (Exception)
+    {
+        identityDb.Database.EnsureCreated();
+    }
+
+    // For the application DbContext use EnsureCreated to avoid requiring migrations during dev run.
+    // In production, create and apply migrations for CookingRecipesDbContext instead.
+    appDb.Database.EnsureCreated();
+
+    var initializer = scope.ServiceProvider.GetRequiredService<RoleInitializer>();
+    try
+    {
+        await initializer.InitializeAsync();
+    }
+    catch (Exception ex)
+    {
+        // Log and continue startup so the process doesn't crash if the identity schema isn't ready.
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while initializing roles.");
+    }
+}
 
 // Log the bound addresses on application start to help diagnose which URLs Kestrel is listening on.
 var _logger = app.Services.GetRequiredService<ILogger<Program>>();

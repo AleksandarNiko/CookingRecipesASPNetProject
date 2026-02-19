@@ -10,6 +10,7 @@ using CookingRecipes.Data.Models;
 
 namespace CookingRecipes.Web.Controllers
 {
+    [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Administrator")]
     public class IngredientsController : Controller
     {
         private readonly CookingRecipesDbContext _context;

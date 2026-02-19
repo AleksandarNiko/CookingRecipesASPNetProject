@@ -3,5 +3,10 @@
     <Project Path="CookingRecipes.Data.Models/CookingRecipes.Data.Models.csproj" />
     <Project Path="CookingRecipes.Data/CookingRecipes.Data.csproj" />
   </Folder>
-  <Project Path="CookingRecipes.Web/CookingRecipes.Web.csproj" />
+  <Folder Name="/Services/">
+    <Project Path="CookingRecipes.Services/CookingRecipes.Services.csproj" Id="e51293d5-a693-40cb-b89d-e4301b8e11ac" />
+  </Folder>
+  <Folder Name="/Web/">
+    <Project Path="CookingRecipes.Web/CookingRecipes.Web.csproj" />
+  </Folder>
 </Solution>

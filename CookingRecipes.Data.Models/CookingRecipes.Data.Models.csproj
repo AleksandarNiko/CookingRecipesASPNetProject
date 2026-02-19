@@ -7,7 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="EntityFramework" Version="6.5.1" />
+    <!-- Remove legacy EF6 and old ASP.NET Identity packages which target .NET Framework.
+         This project contains POCO model classes and should not reference EF6 or
+         Microsoft.AspNet.Identity packages when targeting .NET 10.
+         Keep EF Core package only if model project needs EF Core types; otherwise
+         the higher-level Data project provides EF Core dependencies. -->
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.3" />
   </ItemGroup>
 

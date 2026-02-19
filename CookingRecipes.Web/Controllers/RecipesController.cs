@@ -3,6 +3,8 @@ using CookingRecipes.Services.Interfaces;
 using CookingRecipes.Data.Models;
 using CookingRecipes.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CookingRecipes.Web.Controllers
 {
@@ -11,16 +13,19 @@ namespace CookingRecipes.Web.Controllers
         private readonly IRecipeService recipeService;
         private readonly CookingRecipesDbContext context;
         private readonly ILogger<RecipesController> logger;
+        private readonly UserManager<IdentityUser> userManager;
 
         // Inject-ваме и Service и DbContext (DbContext за Categories засега)
         public RecipesController(
             IRecipeService recipeService,
             CookingRecipesDbContext context,
-            ILogger<RecipesController> logger)
+            ILogger<RecipesController> logger,
+            UserManager<IdentityUser> userManager)
         {
             this.recipeService = recipeService;
             this.context = context;
             this.logger = logger;
+            this.userManager = userManager;
         }
 
         // GET: Recipes
@@ -32,6 +37,7 @@ namespace CookingRecipes.Web.Controllers
         }
 
         // GET: Recipes/Create
+        [Authorize]
         public async Task<IActionResult> Create()
         {
             ViewBag.Categories = await context.Categories.ToListAsync();
@@ -42,6 +48,7 @@ namespace CookingRecipes.Web.Controllers
         // POST: Recipes/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public async Task<IActionResult> Create(
             Recipe recipe,
             int? SelectedCategoryId)
@@ -68,24 +75,51 @@ namespace CookingRecipes.Web.Controllers
             // Ensure CreatedAt is set
             recipe.CreatedAt = DateTime.UtcNow;
 
-            // Ensure there is a valid CreatedBy user. If none exists, create a fallback system user.
-            var user = await context.Users.FirstOrDefaultAsync();
-            if (user == null)
+            // If the user is authenticated, map Identity user to domain User (create if missing)
+            if (User?.Identity?.IsAuthenticated ?? false)
             {
-                user = new CookingRecipes.Data.Models.User
+                var identityUser = await userManager.GetUserAsync(User);
+                var email = identityUser?.Email ?? identityUser?.UserName;
+
+                var domainUser = await context.Users.FirstOrDefaultAsync(u => u.Email == email);
+                if (domainUser == null)
                 {
-                    Username = "system",
-                    Email = "system@local",
-                    PasswordHash = string.Empty,
-                    Role = "Admin",
-                    CreatedAt = DateTime.UtcNow
-                };
+                    domainUser = new CookingRecipes.Data.Models.User
+                    {
+                        Username = identityUser?.UserName ?? email ?? "user",
+                        Email = email ?? string.Empty,
+                        PasswordHash = string.Empty,
+                        Role = "User",
+                        CreatedAt = DateTime.UtcNow
+                    };
 
-                context.Users.Add(user);
-                await context.SaveChangesAsync();
+                    context.Users.Add(domainUser);
+                    await context.SaveChangesAsync();
+                }
+
+                recipe.CreatedBy = domainUser.UserID;
             }
+            else
+            {
+                // If anonymous somehow allowed, fallback to a system user
+                var user = await context.Users.FirstOrDefaultAsync();
+                if (user == null)
+                {
+                    user = new CookingRecipes.Data.Models.User
+                    {
+                        Username = "system",
+                        Email = "system@local",
+                        PasswordHash = string.Empty,
+                        Role = "Admin",
+                        CreatedAt = DateTime.UtcNow
+                    };
 
-            recipe.CreatedBy = user.UserID;
+                    context.Users.Add(user);
+                    await context.SaveChangesAsync();
+                }
+
+                recipe.CreatedBy = user.UserID;
+            }
 
             var selected = SelectedCategoryId.HasValue
                 ? new List<int> { SelectedCategoryId.Value }
